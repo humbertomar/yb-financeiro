@@ -1,0 +1,8 @@
+# Copia o projeto
+COPY . .
+
+# GARANTE build limpo (se vier vendor do repo ou cache, some com ele)
+RUN rm -rf vendor
+
+# Instala dependências do PHP (limpo)
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress

@@ -1,10 +1,15 @@
 FROM php:8.2-fpm-alpine
 
-# Dependências do sistema (Alpine)
+# ---------------------------
+# Dependências do sistema
+# ---------------------------
 RUN apk add --no-cache \
     bash \
     curl \
     git \
+    unzip \
+    zip \
+    mysql-client \
     icu-dev \
     libzip-dev \
     zlib-dev \
@@ -12,12 +17,11 @@ RUN apk add --no-cache \
     libxml2-dev \
     libpng-dev \
     jpeg-dev \
-    freetype-dev \
-    mysql-client \
-    unzip \
-    zip
+    freetype-dev
 
-# Extensões PHP (as que mais dão pau no composer)
+# ---------------------------
+# Extensões PHP (Laravel + deps)
+# ---------------------------
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo \
@@ -30,18 +34,32 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     zip \
     gd
 
+# ---------------------------
+# Diretório de trabalho
+# ---------------------------
 WORKDIR /var/www
 
+# ---------------------------
 # Composer
+# ---------------------------
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# ---------------------------
 # Copia o projeto
+# ---------------------------
 COPY . .
 
-# Instala dependências do PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# ---------------------------
+# Build limpo (corrige seu erro)
+# - Se por acaso veio vendor no repo/cache, remove
+# - Instala do zero e gera autoload otimizado
+# ---------------------------
+RUN rm -rf vendor \
+    && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
 
-# Permissões (Laravel)
+# ---------------------------
+# Permissões Laravel
+# ---------------------------
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
