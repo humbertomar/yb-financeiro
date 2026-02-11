@@ -1,23 +1,33 @@
-# 🔧 Correção de CORS em Produção
+# 🚨 Solução Definitiva para CORS
 
-## ✅ Alterações Realizadas
+## ❌ Problema
+O erro CORS persiste mesmo após configuração porque:
+1. A URL da API estava incorreta (faltava `/api`)
+2. O middleware CORS padrão do Laravel não estava funcionando corretamente em produção
 
-### 1. **config/cors.php**
-- ✅ Adicionado `'supports_credentials' => true` (necessário para Sanctum)
-- ✅ Adicionado rotas `'login'` e `'logout'` aos paths do CORS
-- ✅ Configurado `allowed_origins` para usar variável de ambiente
+## ✅ Solução Implementada
 
-### 2. **.env.production**
-- ✅ Adicionado `CORS_ALLOWED_ORIGINS` com URL do frontend
-- ✅ Atualizado `APP_URL` com URL real do backend
-- ✅ Atualizado `SANCTUM_STATEFUL_DOMAINS` com domínio do frontend
-- ✅ Atualizado `SESSION_DOMAIN` para `.mhiogf.easypanel.host`
+### 1. Middleware CORS Customizado
+Criado `app/Http/Middleware/CorsMiddleware.php` que:
+- ✅ Responde requisições OPTIONS (preflight) imediatamente
+- ✅ Adiciona headers CORS em todas as respostas
+- ✅ Suporta `Access-Control-Allow-Credentials: true`
+- ✅ Usa variável de ambiente `CORS_ALLOWED_ORIGINS`
 
-## 🚀 Como Aplicar no Easypanel
+### 2. Middleware Registrado Globalmente
+Atualizado `bootstrap/app.php` para aplicar o middleware em todas as requisições.
 
-### Passo 1: Atualizar Variáveis de Ambiente no Backend
+### 3. URL da API Corrigida
+`.env.production` do frontend agora usa:
+```env
+VITE_API_URL=https://catalogos-yb-financeiro-backend.mhiogf.easypanel.host/api
+```
 
-No painel do Easypanel, vá até o app do **backend** e adicione/atualize estas variáveis:
+## 🚀 Deploy no Easypanel
+
+### Backend - Variáveis de Ambiente
+
+Adicione estas variáveis no app do backend:
 
 ```env
 APP_URL=https://catalogos-yb-financeiro-backend.mhiogf.easypanel.host
@@ -29,80 +39,90 @@ SANCTUM_STATEFUL_DOMAINS=catalogos-yb-financeiro-frontend.mhiogf.easypanel.host
 SESSION_DOMAIN=.mhiogf.easypanel.host
 ```
 
-### Passo 2: Fazer Redeploy
+### Frontend - Variáveis de Ambiente
 
-1. Commit as alterações no Git:
+Adicione esta variável no app do frontend:
+
+```env
+VITE_API_URL=https://catalogos-yb-financeiro-backend.mhiogf.easypanel.host/api
+```
+
+## 📝 Passo a Passo
+
+1. **Commit as mudanças:**
 ```bash
-git add backend/config/cors.php
-git commit -m "fix: CORS configuration for production"
+git add .
+git commit -m "fix: Add custom CORS middleware and fix API URL"
 git push
 ```
 
-2. No Easypanel, clique em **"Redeploy"** no app do backend
+2. **No Easypanel - Backend:**
+   - Vá em **Environment Variables**
+   - Adicione as variáveis acima
+   - Clique em **Redeploy**
 
-### Passo 3: Limpar Cache (se necessário)
+3. **No Easypanel - Frontend:**
+   - Vá em **Environment Variables**
+   - Adicione `VITE_API_URL`
+   - Clique em **Redeploy**
 
-Se o erro persistir, execute no backend:
+4. **Aguarde o deploy** (1-3 minutos)
+
+5. **Teste o login**
+
+## 🔍 Como Verificar se Funcionou
+
+Abra o DevTools (F12) → Network → Tente fazer login:
+
+### ✅ Requisição OPTIONS (preflight)
+```
+Status: 200 OK
+Headers:
+  Access-Control-Allow-Origin: https://catalogos-yb-financeiro-frontend.mhiogf.easypanel.host
+  Access-Control-Allow-Credentials: true
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+```
+
+### ✅ Requisição POST /api/login
+```
+Status: 200 OK
+Headers:
+  Access-Control-Allow-Origin: https://catalogos-yb-financeiro-frontend.mhiogf.easypanel.host
+  Access-Control-Allow-Credentials: true
+```
+
+## 🐛 Troubleshooting
+
+### Se ainda der erro 404
+Verifique se a rota existe:
 ```bash
-php artisan config:clear
-php artisan cache:clear
+php artisan route:list | grep login
 ```
+Deve mostrar: `POST api/login`
 
-## 🔍 O Que Foi Corrigido
+### Se ainda der erro CORS
+1. Limpe o cache do navegador (Ctrl+Shift+Delete)
+2. Tente em modo anônimo
+3. Verifique se as variáveis de ambiente foram salvas no Easypanel
+4. Verifique os logs do backend no Easypanel
 
-### Problema Original
-```
-Access-Control-Allow-Origin header is present on the requested resource
-```
+### Se der erro 500
+1. Vá em **Logs** no Easypanel (backend)
+2. Procure por erros PHP
+3. Pode ser problema de banco de dados ou APP_KEY
 
-### Causa
-- `supports_credentials` estava `false` (Sanctum precisa de `true`)
-- Rota `/login` não estava nos paths do CORS
-- Domínios do Sanctum não estavam configurados corretamente
+## 📋 Checklist Final
 
-### Solução
-- ✅ Habilitado `supports_credentials: true`
-- ✅ Adicionado rotas de autenticação ao CORS
-- ✅ Configurado domínios corretos no Sanctum
-- ✅ Configurado SESSION_DOMAIN compartilhado
-
-## 📋 Checklist de Verificação
-
-Após aplicar as mudanças:
-
-- [ ] Variáveis de ambiente atualizadas no Easypanel
+- [ ] Middleware `CorsMiddleware.php` criado
+- [ ] Middleware registrado em `bootstrap/app.php`
+- [ ] `.env.production` do frontend com URL correta
+- [ ] Variáveis de ambiente configuradas no Easypanel (backend)
+- [ ] Variável `VITE_API_URL` configurada no Easypanel (frontend)
+- [ ] Código commitado e pushed
 - [ ] Backend redeployado
-- [ ] Cache limpo (se necessário)
-- [ ] Teste de login funcionando
-- [ ] Console do navegador sem erros de CORS
-- [ ] Cookies sendo enviados corretamente
-
-## 🧪 Como Testar
-
-1. Abra o DevTools do navegador (F12)
-2. Vá na aba **Network**
-3. Tente fazer login
-4. Verifique a requisição para `/login`:
-   - ✅ Status: 200 OK
-   - ✅ Headers de resposta devem incluir:
-     - `Access-Control-Allow-Origin: https://catalogos-yb-financeiro-frontend.mhiogf.easypanel.host`
-     - `Access-Control-Allow-Credentials: true`
-
-## 🐛 Se o Erro Persistir
-
-### Opção 1: Verificar Middleware
-Certifique-se que o middleware CORS está ativo em `bootstrap/app.php`
-
-### Opção 2: Verificar Nginx/Proxy
-Alguns proxies podem interferir com headers CORS. Verifique configurações do Easypanel.
-
-### Opção 3: Modo Debug Temporário
-Temporariamente, para debug, você pode usar:
-```env
-CORS_ALLOWED_ORIGINS=*
-```
-⚠️ **Não use em produção final!** Apenas para testar.
+- [ ] Frontend redeployado
+- [ ] Login testado e funcionando
 
 ---
 
-**Após aplicar essas mudanças, o login deve funcionar normalmente!** ✅
+**Esta solução deve resolver definitivamente o problema de CORS!** 🎉

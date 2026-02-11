@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Adiciona middleware CORS customizado no início da pilha
+        $middleware->prepend(\App\Http\Middleware\CorsMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
