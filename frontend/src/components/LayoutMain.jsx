@@ -63,11 +63,9 @@ export default function LayoutMain({ children }) {
 
                             {/* Logo */}
                             <Link to="/dashboard" className="flex items-center group">
-                                <img
-                                    src="/src/assets/logo_yb.png"
-                                    alt="YB Importa"
-                                    className="h-10 sm:h-12 w-auto transition-opacity group-hover:opacity-80"
-                                />
+                                <div className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-base sm:text-lg transition-all group-hover:shadow-lg">
+                                    YB Importa
+                                </div>
                             </Link>
                         </div>
 
