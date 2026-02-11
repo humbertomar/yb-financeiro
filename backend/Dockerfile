@@ -17,7 +17,9 @@ RUN apk add --no-cache \
     libxml2-dev \
     libpng-dev \
     jpeg-dev \
-    freetype-dev
+    freetype-dev \
+    nginx \
+    supervisor
 
 # ---------------------------
 # Extensões PHP (Laravel + deps)
@@ -50,9 +52,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 
 # ---------------------------
-# Build limpo (corrige seu erro)
-# - Se por acaso veio vendor no repo/cache, remove
-# - Instala do zero e gera autoload otimizado
+# Build limpo
 # ---------------------------
 RUN rm -rf vendor \
     && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
@@ -64,6 +64,35 @@ RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-EXPOSE 9000
+# ---------------------------
+# Configuração Nginx
+# ---------------------------
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
-CMD ["php-fpm"]
+# ---------------------------
+# Configuração Supervisor
+# ---------------------------
+RUN echo "[supervisord]" > /etc/supervisord.conf && \
+    echo "nodaemon=true" >> /etc/supervisord.conf && \
+    echo "" >> /etc/supervisord.conf && \
+    echo "[program:php-fpm]" >> /etc/supervisord.conf && \
+    echo "command=php-fpm -F" >> /etc/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisord.conf && \
+    echo "stdout_logfile=/dev/stdout" >> /etc/supervisord.conf && \
+    echo "stdout_logfile_maxbytes=0" >> /etc/supervisord.conf && \
+    echo "stderr_logfile=/dev/stderr" >> /etc/supervisord.conf && \
+    echo "stderr_logfile_maxbytes=0" >> /etc/supervisord.conf && \
+    echo "" >> /etc/supervisord.conf && \
+    echo "[program:nginx]" >> /etc/supervisord.conf && \
+    echo "command=nginx -g 'daemon off;'" >> /etc/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisord.conf && \
+    echo "stdout_logfile=/dev/stdout" >> /etc/supervisord.conf && \
+    echo "stdout_logfile_maxbytes=0" >> /etc/supervisord.conf && \
+    echo "stderr_logfile=/dev/stderr" >> /etc/supervisord.conf && \
+    echo "stderr_logfile_maxbytes=0" >> /etc/supervisord.conf
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
