@@ -15,11 +15,13 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => env('CORS_ALLOWED_ORIGINS') 
+        ? explode(',', env('CORS_ALLOWED_ORIGINS'))
+        : ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +31,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];
