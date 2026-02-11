@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import dashboardService from '../services/dashboardService';
-import { StatsCard } from '../components/Card';
-import QuickActions from '../components/QuickActions';
+import { StatsCard, AlertCard } from '../components/Card';
 import RecentActivity from '../components/RecentActivity';
 
 export default function Home() {
@@ -51,9 +50,9 @@ export default function Home() {
     return (
         <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-sm p-4 sm:p-5 text-white">
+            <div className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] rounded-lg shadow-sm p-4 sm:p-5 text-white">
                 <h1 className="text-lg sm:text-xl font-bold mb-1">Dashboard YB Importa</h1>
-                <p className="text-xs sm:text-sm text-blue-50">Resumo do seu negócio</p>
+                <p className="text-xs sm:text-sm text-[#E8E3D8]">Resumo do seu negócio</p>
             </div>
 
             {/* Cards de Estatísticas Principais */}
@@ -71,25 +70,25 @@ export default function Home() {
                             icon="💰"
                             label="Vendas Hoje"
                             value={`R$ ${stats?.vendas?.hoje?.toFixed(2) || '0,00'}`}
-                            color="green"
+                            color="bronze"
                         />
                         <StatsCard
                             icon="📈"
                             label="Vendas do Mês"
                             value={`R$ ${stats?.vendas?.mes?.toFixed(2) || '0,00'}`}
-                            color="blue"
+                            color="bronze"
                         />
                         <StatsCard
                             icon="📦"
                             label="Produtos"
                             value={stats?.produtos?.total || 0}
-                            color="purple"
+                            color="cream"
                         />
                         <StatsCard
                             icon="👥"
                             label="Clientes"
                             value={stats?.clientes?.total || 0}
-                            color="orange"
+                            color="dark"
                         />
                     </>
                 )}
@@ -100,46 +99,31 @@ export default function Home() {
                 <div className="grid grid-cols-1 gap-3 sm:gap-4">
                     {/* Alerta de Estoque Baixo */}
                     {stats.produtos?.baixo_estoque > 0 && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-3 sm:p-4">
-                            <div className="flex items-start sm:items-center">
-                                <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">⚠️</span>
-                                <div>
-                                    <h3 className="font-bold text-yellow-800 text-sm sm:text-base">Atenção: Estoque Baixo</h3>
-                                    <p className="text-yellow-700 text-xs sm:text-sm">
-                                        {stats.produtos.baixo_estoque} produto(s) com estoque baixo
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <AlertCard
+                            type="warning"
+                            title="Atenção: Estoque Baixo"
+                            message={`${stats.produtos.baixo_estoque} produto(s) com estoque baixo`}
+                            count={stats.produtos.baixo_estoque}
+                        />
                     )}
 
                     {/* Alerta de Contas a Pagar */}
                     {stats.contas_pagar?.vencidas > 0 && (
-                        <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-3 sm:p-4">
-                            <div className="flex items-start sm:items-center">
-                                <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">🔴</span>
-                                <div>
-                                    <h3 className="font-bold text-red-800 text-sm sm:text-base">Contas Vencidas</h3>
-                                    <p className="text-red-700 text-xs sm:text-sm">
-                                        {stats.contas_pagar.vencidas} conta(s) vencida(s)
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <AlertCard
+                            type="danger"
+                            title="Contas Vencidas"
+                            message={`${stats.contas_pagar.vencidas} conta(s) vencida(s)`}
+                            count={stats.contas_pagar.vencidas}
+                        />
                     )}
 
                     {stats.contas_pagar?.a_vencer > 0 && (
-                        <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-3 sm:p-4">
-                            <div className="flex items-start sm:items-center">
-                                <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">📅</span>
-                                <div>
-                                    <h3 className="font-bold text-blue-800 text-sm sm:text-base">Contas a Vencer</h3>
-                                    <p className="text-blue-700 text-xs sm:text-sm">
-                                        {stats.contas_pagar.a_vencer} conta(s) vence(m) nos próximos 7 dias
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <AlertCard
+                            type="info"
+                            title="Contas a Vencer"
+                            message={`${stats.contas_pagar.a_vencer} conta(s) vence(m) nos próximos 7 dias`}
+                            count={stats.contas_pagar.a_vencer}
+                        />
                     )}
                 </div>
             )}
@@ -176,83 +160,83 @@ export default function Home() {
                 </div>
             )}
 
-            {/* Grid com Vendas Recentes e Ações Rápidas */}
+            {/* Grid com Vendas Recentes e Produtos em Baixo Estoque */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                {/* Vendas Recentes */}
                 <RecentActivity vendas={stats?.vendas_recentes} loading={loading} />
-                <QuickActions />
-            </div>
 
-            {/* Produtos em Baixo Estoque */}
-            {!loading && stats?.produtos_estoque && stats.produtos_estoque.length > 0 && (
-                <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Produtos em Baixo Estoque</h2>
+                {/* Produtos em Baixo Estoque */}
+                {!loading && stats?.produtos_estoque && stats.produtos_estoque.length > 0 && (
+                    <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Produtos em Baixo Estoque</h2>
 
-                    {/* Mobile: Card Layout */}
-                    <div className="sm:hidden space-y-3">
-                        {stats.produtos_estoque.map((produto) => (
-                            <div key={produto.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-gray-900 text-sm truncate">{produto.nome}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{produto.categoria}</p>
+                        {/* Mobile: Card Layout */}
+                        <div className="sm:hidden space-y-3">
+                            {stats.produtos_estoque.map((produto) => (
+                                <div key={produto.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-900 text-sm truncate">{produto.nome}</p>
+                                            <p className="text-xs text-gray-500 mt-1">{produto.categoria}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
+                                            ? 'bg-red-100 text-red-800'
+                                            : produto.quantidade <= 2
+                                                ? 'bg-orange-100 text-orange-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                            {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="flex justify-end">
-                                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
-                                        ? 'bg-red-100 text-red-800'
-                                        : produto.quantidade <= 2
-                                            ? 'bg-orange-100 text-orange-800'
-                                            : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
 
-                    {/* Desktop: Table Layout */}
-                    <div className="hidden sm:block overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Produto
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Categoria
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Quantidade
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {stats.produtos_estoque.map((produto) => (
-                                    <tr key={produto.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {produto.nome}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {produto.categoria}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
-                                                ? 'bg-red-100 text-red-800'
-                                                : produto.quantidade <= 2
-                                                    ? 'bg-orange-100 text-orange-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                                }`}>
-                                                {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
-                                            </span>
-                                        </td>
+                        {/* Desktop: Table Layout */}
+                        <div className="hidden sm:block overflow-x-auto">
+                            <table className="min-w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Produto
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Categoria
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Quantidade
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {stats.produtos_estoque.map((produto) => (
+                                        <tr key={produto.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {produto.nome}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {produto.categoria}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : produto.quantidade <= 2
+                                                        ? 'bg-orange-100 text-orange-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                    {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

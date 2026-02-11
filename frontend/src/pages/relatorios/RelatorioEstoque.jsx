@@ -144,7 +144,7 @@ export default function RelatorioEstoque() {
                     />
                     <button
                         onClick={buscarRelatorio}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                        className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-6 py-2 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition shadow-md hover:shadow-lg"
                     >
                         Buscar
                     </button>

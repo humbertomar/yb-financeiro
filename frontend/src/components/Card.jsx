@@ -1,5 +1,6 @@
 /**
- * Card Component - Sistema de Design Minimalista
+ * Card Component - Sistema de Design YB Importa
+ * Com suporte a cards coloridos e gradientes
  */
 
 export function Card({ children, className = '', variant = 'default' }) {
@@ -18,7 +19,7 @@ export function Card({ children, className = '', variant = 'default' }) {
 
 export function CardHeader({ children, className = '', gradient = false }) {
     return (
-        <div className={`px-4 sm:px-6 py-4 ${gradient ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'border-b border-gray-200'} ${className}`}>
+        <div className={`px-4 sm:px-6 py-4 ${gradient ? 'bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white' : 'border-b border-gray-200'} ${className}`}>
             {children}
         </div>
     );
@@ -40,12 +41,12 @@ export function CardContent({ children, className = '' }) {
     );
 }
 
-export function StatsCard({ icon, label, value, trend, trendValue, color = 'blue' }) {
+export function StatsCard({ icon, label, value, trend, trendValue, color = 'bronze' }) {
     const colors = {
-        blue: 'border-blue-200 hover:border-blue-300',
+        bronze: 'border-[#A68A5E] hover:border-[#8B6F47]',
+        cream: 'border-[#E8E3D8] hover:border-[#A68A5E]',
+        dark: 'border-[#6B5536] hover:border-[#8B6F47]',
         green: 'border-green-200 hover:border-green-300',
-        purple: 'border-purple-200 hover:border-purple-300',
-        orange: 'border-orange-200 hover:border-orange-300',
         red: 'border-red-200 hover:border-red-300'
     };
 
@@ -65,6 +66,86 @@ export function StatsCard({ icon, label, value, trend, trendValue, color = 'blue
                         </svg>
                     )}
                     <span className="font-medium">{trendValue}</span>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * ActionCard - Cards coloridos para ações rápidas
+ */
+export function ActionCard({ icon, label, onClick, color = 'bronze' }) {
+    const colors = {
+        bronze: 'bg-gradient-to-br from-[#8B6F47] to-[#6B5536] hover:from-[#6B5536] hover:to-[#8B6F47]',
+        'bronze-light': 'bg-gradient-to-br from-[#A68A5E] to-[#8B6F47] hover:from-[#8B6F47] hover:to-[#A68A5E]',
+        'bronze-dark': 'bg-gradient-to-br from-[#6B5536] to-[#5A4529] hover:from-[#5A4529] hover:to-[#6B5536]',
+        cream: 'bg-gradient-to-br from-[#E8E3D8] to-[#D4CFC4] hover:from-[#D4CFC4] hover:to-[#E8E3D8] text-[#6B5536]',
+        // Manter verde e vermelho para feedback específico
+        green: 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
+        red: 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`${colors[color]} ${color === 'cream' ? 'text-[#6B5536]' : 'text-white'} rounded-xl p-4 sm:p-5 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex flex-col items-center justify-center gap-2 min-h-[110px] sm:min-h-[120px]`}
+        >
+            <span className="text-3xl sm:text-4xl">{icon}</span>
+            <span className="font-semibold text-sm sm:text-base">{label}</span>
+        </button>
+    );
+}
+
+/**
+ * AlertCard - Cards de alerta estilizados
+ */
+export function AlertCard({ type = 'warning', title, message, count }) {
+    const types = {
+        warning: {
+            bg: 'bg-yellow-50 border-yellow-200',
+            icon: '⚠️',
+            iconBg: 'bg-yellow-100',
+            textColor: 'text-yellow-800',
+            titleColor: 'text-yellow-900'
+        },
+        danger: {
+            bg: 'bg-red-50 border-red-200',
+            icon: '🔴',
+            iconBg: 'bg-red-100',
+            textColor: 'text-red-800',
+            titleColor: 'text-red-900'
+        },
+        info: {
+            bg: 'bg-blue-50 border-blue-200',
+            icon: 'ℹ️',
+            iconBg: 'bg-blue-100',
+            textColor: 'text-blue-800',
+            titleColor: 'text-blue-900'
+        },
+        success: {
+            bg: 'bg-green-50 border-green-200',
+            icon: '✅',
+            iconBg: 'bg-green-100',
+            textColor: 'text-green-800',
+            titleColor: 'text-green-900'
+        }
+    };
+
+    const style = types[type];
+
+    return (
+        <div className={`${style.bg} border rounded-lg p-4 flex items-start gap-3`}>
+            <div className={`${style.iconBg} rounded-lg p-2 text-2xl flex-shrink-0`}>
+                {style.icon}
+            </div>
+            <div className="flex-1">
+                <h3 className={`font-bold text-sm ${style.titleColor}`}>{title}</h3>
+                <p className={`text-sm ${style.textColor} mt-1`}>{message}</p>
+            </div>
+            {count && (
+                <div className={`${style.iconBg} rounded-full px-3 py-1 text-sm font-bold ${style.titleColor}`}>
+                    {count}
                 </div>
             )}
         </div>

@@ -62,13 +62,12 @@ export default function LayoutMain({ children }) {
                             </button>
 
                             {/* Logo */}
-                            <Link to="/dashboard" className="flex items-center gap-2 group">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                                    <span className="text-white font-bold text-sm">YB</span>
-                                </div>
-                                <span className="hidden sm:block text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                    YB Importa
-                                </span>
+                            <Link to="/dashboard" className="flex items-center group">
+                                <img
+                                    src="/src/assets/logo_yb.png"
+                                    alt="YB Importa"
+                                    className="h-10 sm:h-12 w-auto transition-opacity group-hover:opacity-80"
+                                />
                             </Link>
                         </div>
 
@@ -77,10 +76,10 @@ export default function LayoutMain({ children }) {
                             <div className="relative">
                                 <button
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                    className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
                                 >
                                     {/* Avatar */}
-                                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#8B6F47] to-[#6B5536] flex items-center justify-center text-white font-semibold text-sm shadow-md">
                                         {getInitials(user?.nome)}
                                     </div>
 
@@ -229,9 +228,9 @@ export default function LayoutMain({ children }) {
                                             <Link
                                                 key={subitem.path}
                                                 to={subitem.path}
-                                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname === subitem.path
-                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === subitem.path
+                                                    ? 'bg-[#F5F2ED] text-[#6B5536]'
+                                                    : 'text-gray-700 hover:bg-gray-50'
                                                     }`}
                                             >
                                                 <span className="text-base">{subitem.icon}</span>
@@ -244,9 +243,9 @@ export default function LayoutMain({ children }) {
                                 <Link
                                     key={item.path}
                                     to={item.path}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname === item.path || location.pathname.startsWith(item.path + '/')
-                                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+                                        ? 'bg-[#F5F2ED] text-[#6B5536]'
+                                        : 'text-gray-700 hover:bg-gray-50'
                                         }`}
                                 >
                                     <span className="text-base">{item.icon}</span>

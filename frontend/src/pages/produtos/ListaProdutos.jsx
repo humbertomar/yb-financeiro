@@ -116,7 +116,7 @@ export default function ListaProdutos() {
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Produtos</h2>
                 <Link
                     to="/produtos/novo"
-                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
+                    className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-4 py-3 sm:py-2 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition text-center font-medium shadow-md hover:shadow-lg"
                 >
                     + Novo Produto
                 </Link>

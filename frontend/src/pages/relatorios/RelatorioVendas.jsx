@@ -201,7 +201,7 @@ export default function RelatorioVendas() {
                     <button
                         onClick={buscarRelatorio}
                         disabled={loading || (!filtros.data_inicio && !filtros.data_fim && !filtros.idCliente && !filtros.idFormapagamento)}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-6 py-2 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                         {loading ? 'Buscando...' : 'Buscar'}
                     </button>

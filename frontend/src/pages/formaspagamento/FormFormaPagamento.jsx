@@ -151,7 +151,7 @@ export default function FormFormaPagamento() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+                            className="flex-1 bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-6 py-3 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition disabled:bg-gray-400 shadow-md hover:shadow-lg"
                         >
                             {loading ? 'Salvando...' : (isEdicao ? 'Atualizar' : 'Criar')}
                         </button>

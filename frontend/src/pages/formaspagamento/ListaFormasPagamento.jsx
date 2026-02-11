@@ -94,7 +94,7 @@ export default function ListaFormasPagamento() {
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Formas de Pagamento</h2>
                 <button
                     onClick={() => navigate('/formaspagamento/nova')}
-                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
+                    className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-4 py-3 sm:py-2 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition text-center font-medium shadow-md hover:shadow-lg"
                 >
                     + Nova Forma de Pagamento
                 </button>

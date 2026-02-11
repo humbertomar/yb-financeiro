@@ -75,7 +75,7 @@ export default function ListaContasPagar() {
                 <h1 className="text-3xl font-bold text-gray-800">Contas a Pagar</h1>
                 <Link
                     to="/contas-pagar/nova"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-gradient-to-r from-[#8B6F47] to-[#6B5536] text-white px-6 py-2 rounded-lg hover:from-[#6B5536] hover:to-[#8B6F47] transition shadow-md hover:shadow-lg"
                 >
                     + Nova Conta
                 </Link>
