@@ -17,5 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // $middleware->prepend(\App\Http\Middleware\CorsMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Para APIs, retornar JSON em vez de redirecionar para login
+        $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Não autenticado. Por favor, faça login.'
+                ], 401);
+            }
+        });
     })->create();

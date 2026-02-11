@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categoriaService } from '../../services/categoriaService';
 import { ActionButtons, EditButton, DeleteButton } from '../../components/ActionButtons';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function ListaCategorias() {
     const [categorias, setCategorias] = useState([]);
@@ -30,7 +31,7 @@ export default function ListaCategorias() {
         if (window.confirm('Tem certeza que deseja excluir esta categoria?')) {
             try {
                 await categoriaService.remover(id);
-                carregarCategorias(); // Recarrega a lista
+                carregarCategorias();
             } catch (error) {
                 alert('Erro ao excluir categoria.');
             }
@@ -45,13 +46,34 @@ export default function ListaCategorias() {
         );
     }
 
+    const columns = [
+        {
+            key: 'idCategoria',
+            label: 'ID',
+            render: (categoria) => `#${categoria.idCategoria}`,
+            className: 'text-gray-500 font-medium'
+        },
+        {
+            key: 'nome',
+            label: 'Nome',
+            render: (categoria) => categoria.nome,
+            className: 'font-medium text-gray-900'
+        },
+        {
+            key: 'texto',
+            label: 'Descrição',
+            render: (categoria) => categoria.texto || '-',
+            className: 'text-gray-500'
+        }
+    ];
+
     return (
-        <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Categorias</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Categorias</h2>
                 <Link
                     to="/categorias/nova"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
                 >
                     + Nova Categoria
                 </Link>
@@ -63,45 +85,18 @@ export default function ListaCategorias() {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {categorias.map((categoria) => (
-                            <tr key={categoria.idCategoria} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    #{categoria.idCategoria}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {categoria.nome}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {categoria.texto || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <ActionButtons>
-                                        <EditButton to={`/categorias/${categoria.idCategoria}/editar`} />
-                                        <DeleteButton onClick={() => handleDelete(categoria.idCategoria)} />
-                                    </ActionButtons>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {categorias.length === 0 && !erro && (
-                    <div className="text-center py-8 text-gray-500">
-                        Nenhuma categoria encontrada.
-                    </div>
+            <ResponsiveTable
+                columns={columns}
+                data={categorias}
+                keyExtractor={(categoria) => categoria.idCategoria}
+                actions={(categoria) => (
+                    <ActionButtons>
+                        <EditButton to={`/categorias/${categoria.idCategoria}/editar`} />
+                        <DeleteButton onClick={() => handleDelete(categoria.idCategoria)} />
+                    </ActionButtons>
                 )}
-            </div>
+                emptyMessage="Nenhuma categoria encontrada."
+            />
         </div>
     );
 }

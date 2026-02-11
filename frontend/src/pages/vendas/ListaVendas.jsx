@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { vendaService } from '../../services/vendaService';
 import { ActionButtons, ViewButton, EditButton, DeleteButton } from '../../components/ActionButtons';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function ListaVendas() {
     const [vendas, setVendas] = useState([]);
@@ -81,39 +82,78 @@ export default function ListaVendas() {
         );
     }
 
+    const columns = [
+        {
+            key: 'idVenda',
+            label: 'ID',
+            render: (venda) => `#${venda.idVenda}`,
+            className: 'font-medium text-gray-900'
+        },
+        {
+            key: 'data_hora',
+            label: 'Data/Hora',
+            render: (venda) => formatarData(venda.data_hora),
+            className: 'text-gray-500'
+        },
+        {
+            key: 'cliente',
+            label: 'Cliente',
+            render: (venda) => venda.cliente?.nome || '-',
+            className: 'text-gray-900'
+        },
+        {
+            key: 'itens',
+            label: 'Itens',
+            render: (venda) => `${venda.itens?.length || 0} item(ns)`,
+            className: 'text-gray-500'
+        },
+        {
+            key: 'valor_total',
+            label: 'Valor Total',
+            render: (venda) => formatarValor(venda.valor_total || 0),
+            className: 'font-medium text-green-600'
+        },
+        {
+            key: 'forma_pagamento',
+            label: 'Pagamento',
+            render: (venda) => venda.forma_pagamento?.nome || '-',
+            className: 'text-gray-500'
+        }
+    ];
+
     return (
-        <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Vendas</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Vendas</h2>
                 <Link
                     to="/vendas/nova"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
                 >
                     + Nova Venda
                 </Link>
             </div>
 
             {/* Filtros */}
-            <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="🔍 Buscar por ID ou cliente..."
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 />
                 <input
                     type="date"
                     value={dataInicio}
                     onChange={(e) => setDataInicio(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                     placeholder="Data Início"
                 />
                 <input
                     type="date"
                     value={dataFim}
                     onChange={(e) => setDataFim(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                     placeholder="Data Fim"
                 />
             </div>
@@ -124,83 +164,44 @@ export default function ListaVendas() {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itens</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pagamento</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {vendas.map((venda) => (
-                            <tr key={venda.idVenda} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    #{venda.idVenda}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {formatarData(venda.data_hora)}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    {venda.cliente?.nome || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {venda.itens?.length || 0} item(ns)
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                    {formatarValor(venda.valor_total || 0)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {venda.forma_pagamento?.nome || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <ActionButtons>
-                                        <ViewButton to={`/vendas/${venda.idVenda}`} />
-                                        <EditButton to={`/vendas/${venda.idVenda}/editar`} />
-                                        <DeleteButton onClick={() => handleCancelar(venda.idVenda)} title="Cancelar" />
-                                    </ActionButtons>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {vendas.length === 0 && !erro && (
-                    <div className="text-center py-8 text-gray-500">
-                        Nenhuma venda encontrada.
-                    </div>
+            <ResponsiveTable
+                columns={columns}
+                data={vendas}
+                keyExtractor={(venda) => venda.idVenda}
+                actions={(venda) => (
+                    <ActionButtons>
+                        <ViewButton to={`/vendas/${venda.idVenda}`} />
+                        <EditButton to={`/vendas/${venda.idVenda}/editar`} />
+                        <DeleteButton onClick={() => handleCancelar(venda.idVenda)} title="Cancelar" />
+                    </ActionButtons>
                 )}
+                emptyMessage="Nenhuma venda encontrada."
+            />
 
-                {/* Paginação */}
-                {pagination.total > 0 && (
-                    <div className="flex justify-between items-center mt-4 px-2 border-t pt-4">
-                        <div className="text-sm text-gray-700">
-                            Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
-                        </div>
-                        <div className="space-x-2">
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                disabled={pagination.current_page === 1}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Anterior
-                            </button>
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                disabled={pagination.current_page === pagination.last_page}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Próxima
-                            </button>
-                        </div>
+            {/* Paginação */}
+            {pagination.total > 0 && (
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-6 pt-4 border-t">
+                    <div className="text-sm text-gray-700 text-center sm:text-left">
+                        Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
                     </div>
-                )}
-            </div>
+                    <div className="flex justify-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page - 1)}
+                            disabled={pagination.current_page === 1}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Anterior
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page + 1)}
+                            disabled={pagination.current_page === pagination.last_page}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

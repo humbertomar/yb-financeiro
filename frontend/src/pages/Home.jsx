@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import dashboardService from '../services/dashboardService';
-import StatCard from '../components/StatCard';
+import { StatsCard } from '../components/Card';
 import QuickActions from '../components/QuickActions';
 import RecentActivity from '../components/RecentActivity';
 
@@ -29,12 +29,17 @@ export default function Home() {
 
     if (error) {
         return (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="text-center py-8">
-                    <p className="text-red-600 mb-4">❌ {error}</p>
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p className="text-red-600 mb-4 font-medium">{error}</p>
                     <button
                         onClick={loadStatistics}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-lg hover:shadow-lg transition-all font-medium"
                     >
                         Tentar novamente
                     </button>
@@ -46,49 +51,45 @@ export default function Home() {
     return (
         <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8 text-white">
-                <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Dashboard YB Importa 📊</h1>
-                <p className="text-sm sm:text-base text-blue-100">Bem-vindo! Aqui está um resumo do seu negócio.</p>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-sm p-4 sm:p-5 text-white">
+                <h1 className="text-lg sm:text-xl font-bold mb-1">Dashboard YB Importa</h1>
+                <p className="text-xs sm:text-sm text-blue-50">Resumo do seu negócio</p>
             </div>
 
             {/* Cards de Estatísticas Principais */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {loading ? (
                     // Loading Skeleton
                     <>
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="animate-pulse bg-gray-200 rounded-xl h-32 sm:h-40"></div>
+                            <div key={i} className="animate-pulse bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl h-32 sm:h-36"></div>
                         ))}
                     </>
                 ) : (
                     <>
-                        <StatCard
-                            title="Vendas Hoje"
-                            value={`R$ ${stats?.vendas?.hoje?.toFixed(2) || '0.00'}`}
+                        <StatsCard
                             icon="💰"
+                            label="Vendas Hoje"
+                            value={`R$ ${stats?.vendas?.hoje?.toFixed(2) || '0,00'}`}
                             color="green"
-                            subtitle={`${stats?.vendas?.total || 0} vendas no total`}
                         />
-                        <StatCard
-                            title="Vendas do Mês"
-                            value={`R$ ${stats?.vendas?.mes?.toFixed(2) || '0.00'}`}
+                        <StatsCard
                             icon="📈"
+                            label="Vendas do Mês"
+                            value={`R$ ${stats?.vendas?.mes?.toFixed(2) || '0,00'}`}
                             color="blue"
-                            subtitle="Acumulado mensal"
                         />
-                        <StatCard
-                            title="Produtos"
-                            value={stats?.produtos?.total || 0}
+                        <StatsCard
                             icon="📦"
+                            label="Produtos"
+                            value={stats?.produtos?.total || 0}
                             color="purple"
-                            subtitle={`${stats?.produtos?.baixo_estoque || 0} em baixo estoque`}
                         />
-                        <StatCard
-                            title="Clientes"
-                            value={stats?.clientes?.total || 0}
+                        <StatsCard
                             icon="👥"
+                            label="Clientes"
+                            value={stats?.clientes?.total || 0}
                             color="orange"
-                            subtitle={`${stats?.clientes?.novos_mes || 0} novos este mês`}
                         />
                     </>
                 )}
@@ -198,10 +199,10 @@ export default function Home() {
                                 </div>
                                 <div className="flex justify-end">
                                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
-                                            ? 'bg-red-100 text-red-800'
-                                            : produto.quantidade <= 2
-                                                ? 'bg-orange-100 text-orange-800'
-                                                : 'bg-yellow-100 text-yellow-800'
+                                        ? 'bg-red-100 text-red-800'
+                                        : produto.quantidade <= 2
+                                            ? 'bg-orange-100 text-orange-800'
+                                            : 'bg-yellow-100 text-yellow-800'
                                         }`}>
                                         {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
                                     </span>
@@ -237,10 +238,10 @@ export default function Home() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${produto.quantidade === 0
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : produto.quantidade <= 2
-                                                        ? 'bg-orange-100 text-orange-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
+                                                ? 'bg-red-100 text-red-800'
+                                                : produto.quantidade <= 2
+                                                    ? 'bg-orange-100 text-orange-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {produto.quantidade} {produto.quantidade === 1 ? 'unidade' : 'unidades'}
                                             </span>

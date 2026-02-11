@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formaPagamentoService } from '../../services/formaPagamentoService';
 import { ActionButtons, EditButton, DeleteButton } from '../../components/ActionButtons';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function ListaFormasPagamento() {
     const navigate = useNavigate();
@@ -56,13 +57,44 @@ export default function ListaFormasPagamento() {
         );
     }
 
+    const columns = [
+        {
+            key: 'idFormapagamento',
+            label: 'ID',
+            render: (forma) => `#${forma.idFormapagamento}`,
+            className: 'text-gray-900 font-medium'
+        },
+        {
+            key: 'forma_pagamento',
+            label: 'Nome',
+            render: (forma) => forma.forma_pagamento,
+            className: 'font-medium text-gray-900'
+        },
+        {
+            key: 'texto',
+            label: 'Descrição',
+            render: (forma) => forma.texto || '-',
+            className: 'text-gray-500'
+        },
+        {
+            key: 'ativo',
+            label: 'Status',
+            render: (forma) => (
+                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${forma.ativo === 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                    {forma.ativo === 1 ? 'Ativo' : 'Inativo'}
+                </span>
+            )
+        }
+    ];
+
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Formas de Pagamento</h1>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Formas de Pagamento</h2>
                 <button
                     onClick={() => navigate('/formaspagamento/nova')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
                 >
                     + Nova Forma de Pagamento
                 </button>
@@ -74,79 +106,31 @@ export default function ListaFormasPagamento() {
                 </div>
             )}
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Buscar forma de pagamento..."
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Buscar forma de pagamento..."
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                />
+            </div>
 
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ID
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Nome
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Descrição
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ações
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {formasFiltradas.length === 0 ? (
-                                <tr>
-                                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                                        Nenhuma forma de pagamento encontrada.
-                                    </td>
-                                </tr>
-                            ) : (
-                                formasFiltradas.map((forma) => (
-                                    <tr key={forma.idFormapagamento} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            #{forma.idFormapagamento}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {forma.forma_pagamento}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            {forma.texto || '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${forma.ativo === 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {forma.ativo === 1 ? 'Ativo' : 'Inativo'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <ActionButtons>
-                                                <EditButton to={`/formaspagamento/${forma.idFormapagamento}/editar`} />
-                                                <DeleteButton onClick={() => handleExcluir(forma.idFormapagamento, forma.forma_pagamento)} />
-                                            </ActionButtons>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <ResponsiveTable
+                columns={columns}
+                data={formasFiltradas}
+                keyExtractor={(forma) => forma.idFormapagamento}
+                actions={(forma) => (
+                    <ActionButtons>
+                        <EditButton to={`/formaspagamento/${forma.idFormapagamento}/editar`} />
+                        <DeleteButton onClick={() => handleExcluir(forma.idFormapagamento, forma.forma_pagamento)} />
+                    </ActionButtons>
+                )}
+                emptyMessage="Nenhuma forma de pagamento encontrada."
+            />
 
-                <div className="mt-4 text-sm text-gray-600">
-                    Total: {formasFiltradas.length} forma(s) de pagamento
-                </div>
+            <div className="mt-4 text-sm text-gray-600 text-center sm:text-left">
+                Total: {formasFiltradas.length} forma(s) de pagamento
             </div>
         </div>
     );

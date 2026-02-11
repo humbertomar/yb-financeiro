@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { clienteService } from '../../services/clienteService';
 import { ActionButtons, EditButton, DeleteButton } from '../../components/ActionButtons';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function ListaClientes() {
     const [clientes, setClientes] = useState([]);
@@ -71,13 +72,40 @@ export default function ListaClientes() {
         );
     }
 
+    const columns = [
+        {
+            key: 'nome',
+            label: 'Nome',
+            render: (cliente) => cliente.nome,
+            className: 'font-medium text-gray-900'
+        },
+        {
+            key: 'cpf',
+            label: 'CPF',
+            render: (cliente) => cliente.cpf || '-',
+            className: 'text-gray-500'
+        },
+        {
+            key: 'whatsapp',
+            label: 'WhatsApp',
+            render: (cliente) => cliente.whatsapp || '-',
+            className: 'text-gray-500'
+        },
+        {
+            key: 'cidade',
+            label: 'Cidade',
+            render: (cliente) => cliente.cidade || '-',
+            className: 'text-gray-500'
+        }
+    ];
+
     return (
-        <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Clientes</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Clientes</h2>
                 <Link
                     to="/clientes/novo"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
                 >
                     + Novo Cliente
                 </Link>
@@ -90,7 +118,7 @@ export default function ListaClientes() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="🔍 Buscar por nome, CPF ou telefone..."
-                    className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 />
             </div>
 
@@ -100,74 +128,43 @@ export default function ListaClientes() {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPF</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">WhatsApp</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cidade</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {clientes.map((cliente) => (
-                            <tr key={cliente.idCliente} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {cliente.nome}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {cliente.cpf || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {cliente.whatsapp || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {cliente.cidade || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <ActionButtons>
-                                        <EditButton to={`/clientes/${cliente.idCliente}/editar`} />
-                                        <DeleteButton onClick={() => handleDelete(cliente.idCliente)} />
-                                    </ActionButtons>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {clientes.length === 0 && !erro && (
-                    <div className="text-center py-8 text-gray-500">
-                        Nenhum cliente encontrado.
-                    </div>
+            <ResponsiveTable
+                columns={columns}
+                data={clientes}
+                keyExtractor={(cliente) => cliente.idCliente}
+                actions={(cliente) => (
+                    <ActionButtons>
+                        <EditButton to={`/clientes/${cliente.idCliente}/editar`} />
+                        <DeleteButton onClick={() => handleDelete(cliente.idCliente)} />
+                    </ActionButtons>
                 )}
+                emptyMessage="Nenhum cliente encontrado."
+            />
 
-                {/* Paginação */}
-                {pagination.total > 0 && (
-                    <div className="flex justify-between items-center mt-4 px-2 border-t pt-4">
-                        <div className="text-sm text-gray-700">
-                            Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
-                        </div>
-                        <div className="space-x-2">
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                disabled={pagination.current_page === 1}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Anterior
-                            </button>
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                disabled={pagination.current_page === pagination.last_page}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Próxima
-                            </button>
-                        </div>
+            {/* Paginação */}
+            {pagination.total > 0 && (
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-6 pt-4 border-t">
+                    <div className="text-sm text-gray-700 text-center sm:text-left">
+                        Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
                     </div>
-                )}
-            </div>
+                    <div className="flex justify-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page - 1)}
+                            disabled={pagination.current_page === 1}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Anterior
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page + 1)}
+                            disabled={pagination.current_page === pagination.last_page}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { produtoService } from '../../services/produtoService';
 import { ActionButtons, EditButton, DeleteButton } from '../../components/ActionButtons';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function ListaProdutos() {
     const [produtos, setProdutos] = useState([]);
@@ -32,8 +33,6 @@ export default function ListaProdutos() {
             setLoading(true);
             const dados = await produtoService.listar(page, searchTerm);
 
-            // Quando usa paginate(), o Laravel retorna:
-            // { current_page: 1, data: [...], last_page: 5, total: 50, ... }
             setProdutos(dados.data || []);
             setPagination({
                 current_page: dados.current_page,
@@ -73,13 +72,51 @@ export default function ListaProdutos() {
         );
     }
 
+    const columns = [
+        {
+            key: 'idProduto',
+            label: 'ID',
+            render: (produto) => `#${produto.idProduto}`,
+            className: 'text-gray-500 font-medium'
+        },
+        {
+            key: 'nome',
+            label: 'Nome',
+            render: (produto) => produto.nome,
+            className: 'font-medium text-gray-900'
+        },
+        {
+            key: 'categoria',
+            label: 'Categoria',
+            render: (produto) => produto.categoria?.nome || '-',
+            className: 'text-gray-500'
+        },
+        {
+            key: 'variacoes',
+            label: 'Variações',
+            render: (produto) => (
+                produto.variacoes && produto.variacoes.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                        {produto.variacoes.map(v => (
+                            <span key={v.id} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded border border-gray-300">
+                                {v.nome_variacao}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="text-gray-400 italic">Sem variações</span>
+                )
+            )
+        }
+    ];
+
     return (
-        <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Produtos</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Produtos</h2>
                 <Link
                     to="/produtos/novo"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition text-center font-medium"
                 >
                     + Novo Produto
                 </Link>
@@ -92,7 +129,7 @@ export default function ListaProdutos() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="🔍 Buscar produto por nome..."
-                    className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 />
             </div>
 
@@ -102,84 +139,43 @@ export default function ListaProdutos() {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variações</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {produtos.map((produto) => (
-                            <tr key={produto.idProduto} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    #{produto.idProduto}
-                                </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {produto.nome}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {produto.categoria?.nome || '-'}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-500">
-                                    {produto.variacoes && produto.variacoes.length > 0 ? (
-                                        <div className="flex flex-wrap gap-1">
-                                            {produto.variacoes.map(v => (
-                                                <span key={v.id} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded border border-gray-300">
-                                                    {v.nome_variacao}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400 italic">Sem variações</span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <ActionButtons>
-                                        <EditButton to={`/produtos/${produto.idProduto}/editar`} />
-                                        <DeleteButton onClick={() => handleDelete(produto.idProduto)} />
-                                    </ActionButtons>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {produtos.length === 0 && !erro && (
-                    <div className="text-center py-8 text-gray-500">
-                        Nenhum produto encontrado.
-                    </div>
+            <ResponsiveTable
+                columns={columns}
+                data={produtos}
+                keyExtractor={(produto) => produto.idProduto}
+                actions={(produto) => (
+                    <ActionButtons>
+                        <EditButton to={`/produtos/${produto.idProduto}/editar`} />
+                        <DeleteButton onClick={() => handleDelete(produto.idProduto)} />
+                    </ActionButtons>
                 )}
+                emptyMessage="Nenhum produto encontrado."
+            />
 
-                {/* Paginação */}
-                {pagination.total > 0 && (
-                    <div className="flex justify-between items-center mt-4 px-2 border-t pt-4">
-                        <div className="text-sm text-gray-700">
-                            Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
-                        </div>
-                        <div className="space-x-2">
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                disabled={pagination.current_page === 1}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Anterior
-                            </button>
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                disabled={pagination.current_page === pagination.last_page}
-                                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
-                            >
-                                Próxima
-                            </button>
-                        </div>
+            {/* Paginação */}
+            {pagination.total > 0 && (
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-6 pt-4 border-t">
+                    <div className="text-sm text-gray-700 text-center sm:text-left">
+                        Página <span className="font-medium">{pagination.current_page}</span> de <span className="font-medium">{pagination.last_page}</span> (Total: {pagination.total})
                     </div>
-                )}
-            </div>
+                    <div className="flex justify-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page - 1)}
+                            disabled={pagination.current_page === 1}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Anterior
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(pagination.current_page + 1)}
+                            disabled={pagination.current_page === pagination.last_page}
+                            className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-medium min-w-[100px]"
+                        >
+                            Próxima
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
