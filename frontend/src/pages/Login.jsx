@@ -15,7 +15,6 @@ export default function Login() {
     useEffect(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        console.log('LocalStorage limpo na tela de login');
     }, []);
 
     async function handleSubmit(e) {
@@ -23,7 +22,7 @@ export default function Login() {
         setError('');
         setLoading(true);
 
-        console.log('Enviando dados:', { email, senha }); // Log para debug
+
 
         const result = await login(email, senha);
 

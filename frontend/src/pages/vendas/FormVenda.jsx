@@ -52,11 +52,6 @@ export default function FormVenda() {
                 categoriaService.listar()
             ]);
 
-            console.log('📦 Produtos carregados:', produtosData);
-            console.log('📦 Total de produtos:', produtosData?.length || 0);
-            console.log('👥 Clientes carregados:', clientesData);
-            console.log('👥 Total de clientes:', Array.isArray(clientesData) ? clientesData.length : 0);
-
             setClientes(Array.isArray(clientesData) ? clientesData : []);
             setProdutos(produtosData || []);
             setFormasPagamento(formasData || []);
@@ -76,15 +71,33 @@ export default function FormVenda() {
         setValorUnitario(variacao?.valor3 || 0);
     }
 
+    function handleSelecionarProduto(produto) {
+        setProdutoSelecionado(produto);
+        setVariacaoSelecionada(null);
+
+        // Se o produto não tem variações, usar o preço do próprio produto
+        if (!produto?.variacoes || produto.variacoes.length === 0) {
+            setValorUnitario(produto?.valor3 || 0);
+        } else {
+            setValorUnitario(0);
+        }
+    }
+
     function adicionarAoCarrinho() {
         if (!produtoSelecionado) {
             alert('Selecione um produto');
             return;
         }
-        if (!variacaoSelecionada) {
+
+        // Verificar se o produto tem variações
+        const temVariacoes = produtoSelecionado?.variacoes && produtoSelecionado.variacoes.length > 0;
+
+        // Se tem variações, exigir seleção de variação
+        if (temVariacoes && !variacaoSelecionada) {
             alert('Selecione uma variação');
             return;
         }
+
         if (quantidade <= 0) {
             alert('Quantidade deve ser maior que zero');
             return;
@@ -98,8 +111,8 @@ export default function FormVenda() {
             id: Date.now(),
             idProduto: produtoSelecionado.idProduto,
             nomeProduto: produtoSelecionado.nome,
-            idVariacao: variacaoSelecionada.id,
-            nomeVariacao: variacaoSelecionada.nome,
+            idVariacao: variacaoSelecionada?.id || null,
+            nomeVariacao: variacaoSelecionada?.nome || 'Sem variação',
             quantidade: parseInt(quantidade),
             valor_unitario: parseFloat(valorUnitario),
             desconto_item: 0
@@ -243,11 +256,7 @@ export default function FormVenda() {
                             <ProdutoCombobox
                                 produtos={produtos}
                                 categoriaSelecionada={categoriaSelecionada}
-                                onSelect={(produto) => {
-                                    setProdutoSelecionado(produto);
-                                    setVariacaoSelecionada(null);
-                                    setValorUnitario(0);
-                                }}
+                                onSelect={handleSelecionarProduto}
                             />
                         </div>
 
@@ -256,10 +265,16 @@ export default function FormVenda() {
                             <select
                                 value={variacaoSelecionada?.id || ''}
                                 onChange={handleSelecionarVariacao}
-                                disabled={!produtoSelecionado}
+                                disabled={!produtoSelecionado || (produtoSelecionado?.variacoes?.length === 0)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
                             >
-                                <option value="">Selecione...</option>
+                                <option value="">
+                                    {!produtoSelecionado
+                                        ? 'Selecione...'
+                                        : produtoSelecionado?.variacoes?.length === 0
+                                            ? 'Sem variações'
+                                            : 'Selecione...'}
+                                </option>
                                 {produtoSelecionado?.variacoes?.map(v => (
                                     <option key={v.id} value={v.id}>
                                         {v.nome} (Estoque: {v.quantidade})
@@ -296,6 +311,13 @@ export default function FormVenda() {
                                     <span className="font-medium">Valor Mín.:</span> {formatarValor(variacaoSelecionada.valor1 || 0)}
                                     <span className="mx-3 font-medium">Valor Med.:</span> {formatarValor(variacaoSelecionada.valor2 || 0)}
                                     <span className="mx-3 font-medium">Valor Máx.:</span> {formatarValor(variacaoSelecionada.valor3 || 0)}
+                                </div>
+                            )}
+                            {!variacaoSelecionada && produtoSelecionado && produtoSelecionado.variacoes?.length === 0 && (
+                                <div className="mt-2 text-sm text-gray-600">
+                                    <span className="font-medium">Valor Mín.:</span> {formatarValor(produtoSelecionado.valor1 || 0)}
+                                    <span className="mx-3 font-medium">Valor Med.:</span> {formatarValor(produtoSelecionado.valor2 || 0)}
+                                    <span className="mx-3 font-medium">Valor Máx.:</span> {formatarValor(produtoSelecionado.valor3 || 0)}
                                 </div>
                             )}
                         </div>

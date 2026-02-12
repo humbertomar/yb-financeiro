@@ -19,10 +19,6 @@ export default function DetalhesVenda() {
         try {
             setLoading(true);
             const dados = await vendaService.obter(id);
-            console.log('=== DEBUG DETALHES VENDA ===');
-            console.log('Dados completos:', dados);
-            console.log('Itens:', dados.itens);
-            console.log('Histórico:', dados.historico);
             setVenda(dados);
         } catch (error) {
             console.error('Erro ao carregar venda:', error);

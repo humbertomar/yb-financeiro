@@ -24,10 +24,8 @@ export default function FormProduto() {
     ]);
 
     useEffect(() => {
-        console.log('🔄 useEffect disparado. ID:', id, 'isEdit:', isEdit);
         carregarCategorias();
         if (isEdit) {
-            console.log('📝 Modo edição detectado, carregando produto...');
             loadProduto();
         }
     }, [id]);
@@ -42,13 +40,9 @@ export default function FormProduto() {
     }
 
     async function loadProduto() {
-        console.log('🚀 loadProduto iniciado para ID:', id);
         try {
             setLoading(true);
             const produto = await produtoService.obter(id);
-
-            console.log('✅ Produto recebido:', produto);
-            console.log('📦 Variações:', produto.variacoes);
 
             setFormData({
                 nome: produto.nome,
@@ -58,7 +52,6 @@ export default function FormProduto() {
             });
 
             if (produto.variacoes && produto.variacoes.length > 0) {
-                console.log('✅ Setando', produto.variacoes.length, 'variações');
                 setVariacoes(produto.variacoes.map(v => ({
                     id: v.id,
                     nome: v.nome_variacao,
@@ -68,7 +61,6 @@ export default function FormProduto() {
                     quantidade: v.quantidade || ''
                 })));
             } else {
-                console.log('⚠️ Produto sem variações, usando linha vazia');
                 setVariacoes([{ nome: '', valor1: '', valor2: '', valor3: '', quantidade: '' }]);
             }
         } catch (error) {
